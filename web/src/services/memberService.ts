@@ -15,9 +15,9 @@ import {
   writeBatch,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
-import { db, functions, storage } from '@/lib/firebase/client';
+import { db } from '@/lib/firebase/client';
+import { callBackendRpc } from '@/services/rpcClient';
+import { uploadBlobFile } from '@/services/storageClient';
 import type {
   CourseDoc,
   EventDoc,
@@ -121,23 +121,8 @@ export async function uploadBlobWithProgress(
   contentType: string,
   onProgress?: (percent: number) => void,
 ): Promise<string> {
-  const storageRef = ref(storage, storagePath);
-  const task = uploadBytesResumable(storageRef, fileOrBlob, { contentType });
-
-  await new Promise<void>((resolve, reject) => {
-    task.on(
-      'state_changed',
-      (snap) => {
-        if (snap.totalBytes > 0 && onProgress) {
-          onProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
-        }
-      },
-      reject,
-      () => resolve(),
-    );
-  });
-
-  return getDownloadURL(storageRef);
+  const { url } = await uploadBlobFile(storagePath, fileOrBlob, contentType, onProgress);
+  return url;
 }
 
 // ---------- Periods & BPH ----------
@@ -450,12 +435,7 @@ export function subscribeReferralHistory(
 }
 
 export async function callRegenerateReferralCode() {
-  const fn = httpsCallable<undefined, { code: string; periodLabel: string }>(
-    functions,
-    'regenerateReferralCode',
-  );
-  const res = await fn();
-  return res.data;
+  return callBackendRpc<undefined, { code: string; periodLabel: string }>('regenerateReferralCode');
 }
 
 // ---------- Users & Roles (Admin) ----------
@@ -467,38 +447,24 @@ export function subscribeAllUsers(onData: (users: UserDoc[]) => void): Unsubscri
 }
 
 export async function callApproveMember(uid: string, role: Role) {
-  const fn = httpsCallable<{ uid: string; role: Role }, { ok: boolean }>(
-    functions,
-    'approveMember',
-  );
-  return (await fn({ uid, role })).data;
+  return callBackendRpc<{ uid: string; role: Role }, { ok: boolean }>('approveMember', { uid, role });
 }
 
 export async function callRejectMember(uid: string, reason?: string) {
-  const fn = httpsCallable<{ uid: string; reason?: string }, { ok: boolean }>(
-    functions,
-    'rejectMember',
-  );
-  return (await fn({ uid, reason })).data;
+  return callBackendRpc<{ uid: string; reason?: string }, { ok: boolean }>('rejectMember', { uid, reason });
 }
 
 export async function callSetUserRole(uid: string, role: Role) {
-  const fn = httpsCallable<{ uid: string; role: Role }, { ok: boolean }>(functions, 'setUserRole');
-  return (await fn({ uid, role })).data;
+  return callBackendRpc<{ uid: string; role: Role }, { ok: boolean }>('setUserRole', { uid, role });
 }
 
 export async function callSetUserStatus(uid: string, status: 'active' | 'disabled') {
-  const fn = httpsCallable<{ uid: string; status: 'active' | 'disabled' }, { ok: boolean }>(
-    functions,
+  return callBackendRpc<{ uid: string; status: 'active' | 'disabled' }, { ok: boolean }>(
     'setUserStatus',
+    { uid, status },
   );
-  return (await fn({ uid, status })).data;
 }
 
 export async function callAdminResetPassword(uid: string): Promise<{ tempPassword: string }> {
-  const fn = httpsCallable<{ uid: string }, { tempPassword: string }>(
-    functions,
-    'adminResetPassword',
-  );
-  return (await fn({ uid })).data;
+  return callBackendRpc<{ uid: string }, { tempPassword: string }>('adminResetPassword', { uid });
 }

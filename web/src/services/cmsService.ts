@@ -13,8 +13,6 @@ import {
   writeBatch,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { deleteObject, getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import {
   ABOUT_COPY,
   AGENDA_COPY,
@@ -26,9 +24,11 @@ import {
   HERO_COPY,
 } from '@/content/site';
 import { FACULTIES_AND_LABS } from '@/content/labs';
-import { auth, db, functions, storage } from '@/lib/firebase/client';
+import { auth, db } from '@/lib/firebase/client';
 import { compressImageToWebp } from '@/services/memberService';
 import { FALLBACK_JOURNEY_ITEMS } from '@/services/publicService';
+import { callBackendRpc } from '@/services/rpcClient';
+import { deleteBlobFile, uploadBlobFile } from '@/services/storageClient';
 import type { AgendaDoc, AuditLogDoc, FacultyDoc, HomeContentDoc, IntiOfficer } from '@/types/models';
 
 export const DEFAULT_HOME_CONTENT: HomeContentDoc = {
@@ -153,20 +153,13 @@ export async function uploadCultureImage(
 ): Promise<{ imageUrl: string; storagePath: string }> {
   const { blob } = await compressImageToWebp(file, { maxWidth: 1600, quality: 0.82 });
   const safeId = itemId.replace(/[^a-zA-Z0-9_-]/g, '') || 'budaya';
-  const storagePath = `culture/${safeId}-${Date.now()}.webp`;
-  const storageRef = ref(storage, storagePath);
-  await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
-  const imageUrl = await getDownloadURL(storageRef);
-  return { imageUrl, storagePath };
+  const path = `culture/${safeId}-${Date.now()}.webp`;
+  const { url, storagePath } = await uploadBlobFile(path, blob, 'image/webp');
+  return { imageUrl: url, storagePath };
 }
 
 export async function deleteCultureStorageImage(storagePath?: string): Promise<void> {
-  if (!storagePath) return;
-  try {
-    await deleteObject(ref(storage, storagePath));
-  } catch {
-    // Ignore if already removed
-  }
+  await deleteBlobFile(storagePath);
 }
 
 export const deleteStorageFile = deleteCultureStorageImage;
@@ -224,11 +217,9 @@ export async function uploadPeriodDepartmentPhoto(
   assertValidImageUpload(file);
   const { blob } = await compressImageToWebp(file, { maxWidth: 1600, quality: 0.84 });
   const safeDept = deptId.replace(/[^a-zA-Z0-9_-]/g, '') || `dept-${Date.now()}`;
-  const photoPath = `periods/${periodId}/departments/${safeDept}.webp`;
-  const storageRef = ref(storage, photoPath);
-  await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
-  const photoUrl = await getDownloadURL(storageRef);
-  return { photoUrl, photoPath };
+  const path = `periods/${periodId}/departments/${safeDept}.webp`;
+  const { url, storagePath } = await uploadBlobFile(path, blob, 'image/webp');
+  return { photoUrl: url, photoPath: storagePath };
 }
 
 export async function uploadPeriodPersonPhoto(
@@ -238,11 +229,9 @@ export async function uploadPeriodPersonPhoto(
 ): Promise<{ photoUrl: string; photoPath: string }> {
   const blob = await compressSquareImageToWebp(file, 800, 0.84);
   const safePerson = personId.replace(/[^a-zA-Z0-9_-]/g, '') || `person-${Date.now()}`;
-  const photoPath = `periods/${periodId}/people/${safePerson}.webp`;
-  const storageRef = ref(storage, photoPath);
-  await uploadBytes(storageRef, blob, { contentType: 'image/webp' });
-  const photoUrl = await getDownloadURL(storageRef);
-  return { photoUrl, photoPath };
+  const path = `periods/${periodId}/people/${safePerson}.webp`;
+  const { url, storagePath } = await uploadBlobFile(path, blob, 'image/webp');
+  return { photoUrl: url, photoPath: storagePath };
 }
 
 export async function importDefaultHomeContent(): Promise<void> {
@@ -481,9 +470,7 @@ export async function callUpdateAslab(payload: {
   jadwalAslab?: string;
   whatsappAslab?: string;
 }): Promise<{ ok: boolean }> {
-  const fn = httpsCallable<typeof payload, { ok: boolean }>(functions, 'updateAslab');
-  const res = await fn(payload);
-  return res.data;
+  return callBackendRpc<typeof payload, { ok: boolean }>('updateAslab', payload);
 }
 
 /* ---------------- B5: Create Period Wizard Callable ---------------- */
@@ -496,12 +483,10 @@ export async function callCreatePeriodWizard(payload: {
   deactivateAngkatan: number[];
   inti: IntiOfficer[];
 }): Promise<{ ok: boolean; periodId: string; copiedUnits: number; deactivatedCount: number }> {
-  const fn = httpsCallable<
+  return callBackendRpc<
     typeof payload,
     { ok: boolean; periodId: string; copiedUnits: number; deactivatedCount: number }
-  >(functions, 'createPeriodWizard');
-  const res = await fn(payload);
-  return res.data;
+  >('createPeriodWizard', payload);
 }
 
 /* ---------------- C1: Pending Users Count Badge ---------------- */

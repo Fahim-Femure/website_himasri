@@ -5,8 +5,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { httpsCallable } from 'firebase/functions';
-import { auth, functions } from '@/lib/firebase/client';
+import { auth } from '@/lib/firebase/client';
+import { callBackendRpc } from '@/services/rpcClient';
 import { identifierToEmail } from '@/utils/nim';
 
 export interface CheckReferralResponse {
@@ -49,32 +49,20 @@ export async function logoutAccount() {
 }
 
 export async function checkReferralCode(code: string): Promise<CheckReferralResponse> {
-  const fn = httpsCallable<{ code: string }, CheckReferralResponse>(
-    functions,
-    'checkReferralCode',
-  );
-  const res = await fn({ code });
-  return res.data;
+  return callBackendRpc<{ code: string }, CheckReferralResponse>('checkReferralCode', { code });
 }
 
 export async function registerMember(
   payload: RegisterMemberInput,
 ): Promise<RegisterMemberResponse> {
-  const fn = httpsCallable<RegisterMemberInput, RegisterMemberResponse>(
-    functions,
-    'registerMember',
-  );
-  const res = await fn(payload);
-  return res.data;
+  return callBackendRpc<RegisterMemberInput, RegisterMemberResponse>('registerMember', payload);
 }
 
 export async function updateUserPhoto(photoURL: string | null): Promise<{ ok: boolean; photoURL: string | null }> {
-  const fn = httpsCallable<{ photoURL: string | null }, { ok: boolean; photoURL: string | null }>(
-    functions,
+  return callBackendRpc<{ photoURL: string | null }, { ok: boolean; photoURL: string | null }>(
     'updateUserPhoto',
+    { photoURL },
   );
-  const res = await fn({ photoURL });
-  return res.data;
 }
 
 export function mapFirebaseAuthError(error: unknown): string {
