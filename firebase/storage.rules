@@ -1,0 +1,114 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function active() {
+      return signedIn() && request.auth.token.status == 'active';
+    }
+
+    function canEditContent() {
+      return active() && role() in ['kominfo', 'inti', 'admin'];
+    }
+
+    function canEditPeriods() {
+      return active() && role() in ['inti', 'admin'];
+    }
+
+    function canEditMateri() {
+      return active() && role() in ['akademik', 'inti', 'admin'];
+    }
+
+    match /hero/{fileName} {
+      allow read: if true;
+      allow write: if canEditContent() && (
+        request.resource == null || (
+          request.resource.size <= 5 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /journey/{fileName} {
+      allow read: if true;
+      allow write: if canEditContent() && (
+        request.resource == null || (
+          request.resource.size <= 5 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /culture/{fileName} {
+      allow read: if true;
+      allow write: if canEditContent() && (
+        request.resource == null || (
+          request.resource.size <= 5 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /periods/{periodId}/departments/{fileName} {
+      allow read: if true;
+      allow write: if canEditPeriods() && (
+        request.resource == null || (
+          request.resource.size <= 5 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /periods/{periodId}/people/{fileName} {
+      allow read: if true;
+      allow write: if canEditPeriods() && (
+        request.resource == null || (
+          request.resource.size <= 5 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /products/{fileName} {
+      allow read: if active();
+      allow write: if canEditContent() && (
+        request.resource == null || (
+          request.resource.size <= 3 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+
+    match /materials/{materialId}/{fileName} {
+      allow read: if active();
+      allow write: if canEditMateri() && (
+        request.resource == null || (
+          request.resource.size <= 20 * 1024 * 1024 &&
+          request.resource.contentType in [
+            'application/pdf',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          ]
+        )
+      );
+    }
+
+    match /avatars/{fileName} {
+      allow read: if signedIn();
+      allow write: if signedIn() && fileName == request.auth.uid + '.webp' && (
+        request.resource == null || (
+          request.resource.size <= 1 * 1024 * 1024 &&
+          request.resource.contentType.matches('image/.*')
+        )
+      );
+    }
+  }
+}
