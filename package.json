@@ -1,0 +1,37 @@
+{
+  "name": "website-himasri",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website Resmi HIMASRI — Himpunan Mahasiswa Sriwijaya, Institut Teknologi PLN",
+  "workspaces": [
+    "web",
+    "functions"
+  ],
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm --workspace=web run build && npm --workspace=functions run build",
+    "lint": "npm --workspace=web run lint && npm --workspace=functions run lint",
+    "format": "prettier --write \"web/src/**/*.{ts,tsx,css}\" \"functions/src/**/*.ts\" \"scripts/**/*.ts\" \"firebase/tests/**/*.ts\"",
+    "test": "npm run test:web && npm run test:functions && npm run test:rules",
+    "test:web": "npm --workspace=web run test",
+    "test:functions": "npm --workspace=functions run test",
+    "test:rules": "node scripts/test-rules.mjs",
+    "seed:dev": "tsx scripts/seed-dev/seed.ts",
+    "create:admin": "tsx scripts/create-admin.ts",
+    "bootstrap:admin": "tsx scripts/seed-dev/bootstrap-admin.ts",
+    "prepare:assets": "node scripts/prepare-assets.mjs",
+    "deploy": "npm run build && firebase deploy --only hosting,firestore,storage,functions"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.0",
+    "firebase": "^11.6.0",
+    "firebase-admin": "^13.2.0",
+    "firebase-tools": "^13.34.0",
+    "heic-convert": "^2.1.0",
+    "prettier": "^3.4.2",
+    "sharp": "^0.33.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
