@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "demo-himasri"
+    "default": "demo-himasri",
+    "production": "himasri-itpln"
   }
 }
