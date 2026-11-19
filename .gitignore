@@ -39,3 +39,7 @@ Thumbs.db
 *.swo
 .vscode/*
 !.vscode/extensions.json
+
+# Large local archives & raw source media
+*.zip
+assets-source/

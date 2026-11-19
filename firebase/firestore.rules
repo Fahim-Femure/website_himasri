@@ -1,0 +1,190 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function active() {
+      return signedIn() && request.auth.token.status == 'active';
+    }
+
+    function isAdmin() {
+      return active() && role() == 'admin';
+    }
+
+    function isInti() {
+      return active() && role() == 'inti';
+    }
+
+    function canEditContent() {
+      return active() && role() in ['kominfo', 'inti', 'admin'];
+    }
+
+    function canEditMateri() {
+      return active() && role() in ['akademik', 'inti', 'admin'];
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+
+    match /members/{uid} {
+      allow read: if active();
+      allow write: if false;
+    }
+
+    match /nimIndex/{nim} {
+      allow read, write: if false;
+    }
+
+    match /rateLimits/{hash} {
+      allow read, write: if false;
+    }
+
+    match /periods/{periodId} {
+      allow read: if true;
+      allow write: if isAdmin() || isInti();
+
+      match /units/{unitId} {
+        allow read: if active();
+        allow write: if isAdmin() || isInti();
+      }
+    }
+
+    match /settings/public {
+      allow read: if true;
+      allow write: if isAdmin() || isInti();
+    }
+
+    match /settings/hero {
+      allow read: if true;
+      allow write: if canEditContent();
+    }
+
+    match /heroSlides/{slideId} {
+      allow read: if resource.data.active == true || canEditContent();
+      allow write: if canEditContent();
+    }
+
+    match /journeyItems/{itemId} {
+      allow read: if resource.data.active == true || canEditContent();
+      allow create, update: if canEditContent()
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.title.size() <= 140
+        && request.resource.data.dateLabel is string
+        && request.resource.data.dateLabel.size() >= 2
+        && request.resource.data.year is int
+        && request.resource.data.year >= 2000
+        && request.resource.data.year <= 2100
+        && request.resource.data.active is bool
+        && request.resource.data.order is number;
+      allow delete: if canEditContent();
+    }
+
+    match /secure/referral {
+      allow read: if isAdmin() || isInti();
+      allow write: if false;
+    }
+
+    match /referralHistory/{id} {
+      allow read: if isAdmin() || isInti();
+      allow write: if false;
+    }
+
+    match /courses/{courseId} {
+      allow read: if active();
+      allow create, update: if canEditMateri()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.jurusan is string
+        && request.resource.data.semester is int
+        && request.resource.data.semester >= 1
+        && request.resource.data.semester <= 8;
+      allow delete: if canEditMateri();
+    }
+
+    match /materials/{materialId} {
+      allow read: if active();
+      allow create, update: if canEditMateri()
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.type in ['file', 'link']
+        && request.resource.data.semester is int
+        && request.resource.data.semester >= 1
+        && request.resource.data.semester <= 8;
+      allow delete: if canEditMateri();
+    }
+
+    match /events/{eventId} {
+      allow read: if active();
+      allow write: if canEditContent();
+    }
+
+    match /products/{productId} {
+      allow read: if active() && (resource.data.status == 'published' || canEditContent());
+      allow create, update: if canEditContent()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.stock is number
+        && request.resource.data.stock >= 0
+        && request.resource.data.status in ['published', 'draft'];
+      allow delete: if canEditContent();
+    }
+
+    match /productClicks/{clickId} {
+      allow read: if canEditContent();
+      allow create: if active() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    match /siteContent/{docId} {
+      allow read: if true;
+      allow write: if canEditContent();
+    }
+
+    match /agenda/{agendaId} {
+      allow read: if resource.data.active == true || canEditContent();
+      allow create, update: if canEditContent()
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 2
+        && request.resource.data.title.size() <= 140
+        && request.resource.data.tag is string
+        && request.resource.data.order is number
+        && request.resource.data.highlight is bool
+        && request.resource.data.active is bool;
+      allow delete: if canEditContent();
+    }
+
+    match /faculties/{facultyId} {
+      allow read: if true;
+      allow create, update: if canEditMateri()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 2
+        && request.resource.data.labs is list;
+      allow delete: if canEditMateri();
+    }
+
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if active() && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.action is string
+        && request.resource.data.target is string;
+      allow update, delete: if false;
+    }
+
+    match /mail/{mailId} {
+      allow read, write: if false;
+    }
+  }
+}

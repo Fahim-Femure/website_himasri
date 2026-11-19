@@ -1,0 +1,482 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-maroon-950: #2a0a0f;
+  --color-maroon-900: #4a1219;
+  --color-maroon-800: #5e1620;
+  --color-maroon-700: #7a1f2b;
+  --color-maroon-500: #9e2f3c;
+  --color-maroon-300: #c98a92;
+  --color-maroon-100: #f2dcdc;
+
+  --color-gold-100: #f6ebc8;
+  --color-gold-300: #e6c76a;
+  --color-gold-400: #d9b54a;
+  --color-gold-500: #c9a227;
+  --color-gold-700: #735510;
+
+  --color-cream-50: #fffbf3;
+  --color-cream-100: #f7efe0;
+  --color-cream-200: #ede0c8;
+  --color-cream-300: #e0cda9;
+
+  --color-ink-900: #2b1a1c;
+  --color-ink-600: #6b5457;
+  --color-ink-400: #8c7a7d;
+
+  --color-success-600: #1e7f4f;
+  --color-success-50: #e6f4ec;
+  --color-whatsapp-50: #e6f4ec;
+  --color-whatsapp-600: #16a34a;
+  --color-whatsapp-700: #15803d;
+  --color-danger-600: #b42318;
+  --color-danger-50: #fdecea;
+  --color-warning-600: #8a6100;
+  --color-warning-50: #fbf1da;
+  --color-white: #ffffff;
+
+  /* placeholder warna rata-rata foto budaya Palembang */
+  --color-culture-songket: #4a332b;
+  --color-culture-pempek: #d6cdc0;
+  --color-culture-ampera: #98a1a8;
+  --color-culture-limas: #9eb08d;
+  --color-culture-gending: #3b2436;
+  --color-culture-musi: #b8b3a8;
+  --color-culture-fallback: #e8dfd0;
+
+  /* efek gradien & bayangan komponen */
+  --g-journey-intro: radial-gradient(
+    ellipse 75% 55% at 15% 15%,
+    color-mix(in srgb, var(--color-maroon-700) 58%, transparent) 0%,
+    color-mix(in srgb, var(--color-maroon-950) 96%, transparent) 65%,
+    var(--color-maroon-950) 100%
+  );
+  --g-empty-glow: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-gold-300) 42%, transparent) 0%,
+    transparent 72%
+  );
+  --shadow-drag: 0 12px 32px -8px color-mix(in srgb, var(--color-maroon-950) 22%, transparent);
+
+  /* bidang maroon — cahaya kiri atas */
+  --g-maroon: radial-gradient(120% 90% at 0% 0%, rgba(201, 162, 39, 0.16) 0%, rgba(201, 162, 39, 0) 45%),
+    linear-gradient(135deg, #8a2533 0%, #7a1f2b 35%, #4a1219 100%);
+  /* sidebar — sedikit lebih gelap, cahaya di atas */
+  --g-sidebar: radial-gradient(140% 60% at 0% 0%, rgba(230, 199, 106, 0.14) 0%, rgba(230, 199, 106, 0) 50%),
+    linear-gradient(180deg, #5e1620 0%, #3a0e15 60%, #2a0a0f 100%);
+  /* emas — logam dengan kilau */
+  --g-gold: radial-gradient(100% 120% at 0% 0%, rgba(255, 251, 243, 0.55) 0%, rgba(255, 251, 243, 0) 45%),
+    linear-gradient(135deg, #e6c76a 0%, #d9b54a 45%, #b8912a 100%);
+  /* krem — permukaan hangat */
+  --g-cream: linear-gradient(160deg, #fffdf8 0%, #f7efe0 100%);
+  /* gelap — kedalaman */
+  --g-dark: radial-gradient(110% 80% at 100% 0%, rgba(158, 47, 60, 0.35) 0%, rgba(158, 47, 60, 0) 55%),
+    linear-gradient(135deg, #3a0e15 0%, #2a0a0f 100%);
+  /* tombol primer — 2 stop halus */
+  --g-btn: linear-gradient(180deg, #8a2533 0%, #7a1f2b 100%);
+  /* latar halaman app — sangat halus, bukan putih datar */
+  --g-page: radial-gradient(80% 50% at 100% 0%, rgba(201, 162, 39, 0.07) 0%, rgba(201, 162, 39, 0) 60%),
+    linear-gradient(180deg, #fffbf3 0%, #f7efe0 100%);
+  /* overlay hero foto */
+  --g-hero: linear-gradient(90deg, rgba(42, 10, 15, 0.92) 0%, rgba(74, 18, 25, 0.78) 45%, rgba(122, 31, 43, 0.35) 100%),
+    linear-gradient(180deg, rgba(42, 10, 15, 0) 55%, rgba(42, 10, 15, 0.85) 100%);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink-900);
+    background-color: var(--color-cream-50);
+    scroll-behavior: smooth;
+  }
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-gold-400);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .type-display-xl {
+    font-size: 2.5rem;
+    line-height: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .type-h1 {
+    font-size: 1.75rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .type-h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  @media (min-width: 768px) {
+    .type-display-xl {
+      font-size: 4rem;
+      line-height: 4.35rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .type-h1 {
+      font-size: 2.5rem;
+      line-height: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .type-h2 {
+      font-size: 2.25rem;
+      line-height: 2.75rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+    }
+  }
+
+  .type-app-h1 {
+    font-size: 1.625rem;
+    line-height: 2.125rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+
+  @media (min-width: 768px) {
+    .type-app-h1 {
+      font-size: 2rem;
+      line-height: 2.5rem;
+    }
+  }
+
+  .type-app-h2 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+  }
+
+  .type-app-body {
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+  }
+
+  .type-app-meta {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+  }
+
+  .type-h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .type-h4 {
+    font-size: 1.125rem;
+    line-height: 1.625rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+
+  .type-body-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .type-body {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .type-body-medium {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .type-small {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .type-small-medium {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .type-button {
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .type-overline {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .type-caption {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .type-micro {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0;
+  }
+
+  .type-label {
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    letter-spacing: 0;
+  }
+
+  .type-display-num {
+    font-size: 5.5rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.05em;
+  }
+
+  @media (min-width: 1024px) {
+    .type-display-num {
+      font-size: 7.25rem;
+    }
+  }
+
+  .public-container {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  @media (min-width: 1280px) {
+    .public-container {
+      max-width: 1280px;
+      padding-left: 64px;
+      padding-right: 64px;
+    }
+  }
+
+  .public-section {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+
+  @media (min-width: 768px) {
+    .public-section {
+      padding-top: 96px;
+      padding-bottom: 96px;
+    }
+  }
+}
+
+.g-maroon {
+  background-image: var(--g-maroon);
+}
+
+.g-sidebar {
+  background-image: var(--g-sidebar);
+}
+
+.g-gold {
+  background-image: var(--g-gold);
+}
+
+.g-cream {
+  background-image: var(--g-cream);
+}
+
+.g-dark {
+  background-image: var(--g-dark);
+}
+
+.g-btn {
+  background-image: var(--g-btn);
+}
+
+.g-page {
+  background-image: var(--g-page);
+}
+
+.g-hero {
+  background-image: var(--g-hero);
+}
+
+.bg-hero-overlay {
+  background-image: var(--g-hero);
+}
+
+/* Glassmorphism utilities (strictly limited to overlays over photos/dark or scrolled bars) */
+.glass {
+  background-color: rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px -8px rgba(42, 10, 15, 0.32);
+}
+
+.glass-dark {
+  background-color: rgba(42, 10, 15, 0.72);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 8px 24px -8px rgba(42, 10, 15, 0.36);
+}
+
+.glass-light {
+  background-color: rgba(255, 250, 243, 0.65);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+  border: 1px solid rgba(122, 31, 43, 0.08);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-dark {
+    background-color: rgba(42, 10, 15, 0.88);
+  }
+
+  .glass-light {
+    background-color: rgba(255, 250, 243, 0.94);
+  }
+}
+
+.pucuk-rebung-border {
+  height: 12px;
+  width: 100%;
+  background-color: rgba(201, 162, 39, 0.38);
+  -webkit-mask-image: url('/assets/images/ornaments/pucuk-rebung.svg');
+  mask-image: url('/assets/images/ornaments/pucuk-rebung.svg');
+  -webkit-mask-size: 48px 12px;
+  mask-size: 48px 12px;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+}
+
+/* Kilau cahaya di kartu Kode Referal (6 detik sekali, 1.2s sweep) */
+@keyframes referral-sheen-sweep {
+  0% {
+    transform: translateX(-140%) skewX(-20deg);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  20% {
+    transform: translateX(260%) skewX(-20deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(260%) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+.referral-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.referral-sheen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 45%;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 251, 243, 0) 0%,
+    rgba(255, 251, 243, 0.24) 50%,
+    rgba(255, 251, 243, 0) 100%
+  );
+  animation: referral-sheen-sweep 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .referral-sheen::after {
+    animation: none;
+    display: none;
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.skeleton-shimmer {
+  background-color: var(--color-cream-200);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+  }
+}

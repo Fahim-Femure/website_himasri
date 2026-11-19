@@ -1,0 +1,133 @@
+/* HIMASRI Custom Scrollbars, Smooth Scroll & Browser-Native UI Overrides */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+* {
+  accent-color: #7A1F2B;
+}
+
+::selection {
+  background-color: #F6EBC8;
+  color: #2A0A0F;
+}
+
+::-moz-selection {
+  background-color: #F6EBC8;
+  color: #2A0A0F;
+}
+
+/* Firefox fallback (keep Chromium/WebKit on ::-webkit-scrollbar so arrow buttons stay removed) */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 31, 43, 0.38) #F7EFE0;
+  }
+
+  .scrollbar-light {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 31, 43, 0.38) #FFFBF3;
+  }
+
+  .scrollbar-dark {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(217, 181, 74, 0.48) #2A0A0F;
+  }
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track {
+  background: #F7EFE0;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(122, 31, 43, 0.38);
+  border-radius: 9999px;
+  border: 2px solid #F7EFE0;
+  transition: background-color 160ms ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(122, 31, 43, 0.7);
+}
+
+/* Light surfaces (modals, drawers, cream content panels) */
+.scrollbar-light::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.scrollbar-light::-webkit-scrollbar-track {
+  background: #FFFBF3;
+  border-radius: 9999px;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb {
+  background-color: rgba(122, 31, 43, 0.38);
+  border-radius: 9999px;
+  border: 2px solid #FFFBF3;
+}
+
+.scrollbar-light::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(122, 31, 43, 0.7);
+}
+
+/* Dark wine surfaces (AppSidebar & dark blocks) */
+.scrollbar-dark::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-track {
+  background: #2A0A0F;
+  border-radius: 9999px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 181, 74, 0.45);
+  border-radius: 9999px;
+  border: 1px solid #2A0A0F;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(217, 181, 74, 0.75);
+}
+
+/* Hide OS number input spin arrows */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Neutralize pale-blue browser autofill highlight */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #2B1A1C;
+  -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
