@@ -501,103 +501,166 @@ export default function PeriodsBphPage() {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h2 className="type-app-h2 text-ink-900">
-              Pengurus Inti ({selectedPeriod?.label})
+              {selectedPeriod?.id ? `Pengurus Inti (${selectedPeriod.label})` : 'Pengurus Inti'}
             </h2>
             <p className="mt-0.5 type-label text-ink-600">
               Data ini tampil pada bagan BPH di halaman publik dan ruang anggota.
             </p>
           </div>
-          {selectedPeriod?.isCurrent && <Badge variant="success">Periode berjalan</Badge>}
+          {selectedPeriod?.id && selectedPeriod.isCurrent && (
+            <Badge variant="success">Periode berjalan</Badge>
+          )}
         </div>
 
-        <div className="space-y-5">
-          {intiDraft.map((officer, idx) => (
-            <div
-              key={officer.position}
-              className="pt-5 first:pt-0 border-t first:border-t-0 border-cream-200 space-y-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <Avatar name={officer.nama || officer.position} photoURL={officer.photoUrl} size="M" />
-                  <div>
-                    <p className="type-small leading-5 font-semibold text-ink-900">
-                      {officer.position}
-                    </p>
-                    <p className="type-caption text-ink-600">
-                      {officer.photoUrl ? 'Foto profil terpasang (800×800 WebP)' : 'Belum ada foto (tampil inisial)'}
-                    </p>
+        {!selectedPeriod?.id ? (
+          <div className="rounded-lg border border-dashed border-cream-300 bg-cream-50 p-6 text-center space-y-3">
+            <p className="type-body font-bold text-ink-900">Belum ada periode kepengurusan</p>
+            <p className="type-small text-ink-600 max-w-md mx-auto">
+              Buat periode kepengurusan pertama (mis. 2025/2026) untuk mulai mengisi susunan Pengurus
+              Inti, Departemen, dan Biro.
+            </p>
+            <div className="pt-1">
+              <Button
+                variant="primary"
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={() => setNewPeriodOpen(true)}
+              >
+                Buat Periode Pertama
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-5">
+              {intiDraft.map((officer, idx) => (
+                <div
+                  key={`${officer.position}-${idx}`}
+                  className="pt-5 first:pt-0 border-t first:border-t-0 border-cream-200 space-y-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        name={officer.nama || officer.position || 'P'}
+                        photoURL={officer.photoUrl}
+                        size="M"
+                      />
+                      <div>
+                        <p className="type-small leading-5 font-semibold text-ink-900">
+                          {officer.position || 'Jabatan baru'}
+                        </p>
+                        <p className="type-caption text-ink-600">
+                          {officer.photoUrl
+                            ? 'Foto profil terpasang (800×800 WebP)'
+                            : 'Belum ada foto (tampil inisial)'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <label className="inline-flex min-h-11 md:min-h-[38px] items-center gap-2 rounded-md border border-cream-300 bg-white px-3 py-1.5 type-small font-semibold text-ink-900 hover:bg-cream-100 cursor-pointer">
+                        <ImagePlus className="h-4 w-4 text-maroon-700" aria-hidden="true" />
+                        <span>
+                          {uploadingKey === `inti-${idx}`
+                            ? 'Mengunggah…'
+                            : officer.photoUrl
+                              ? 'Ganti foto'
+                              : 'Unggah foto'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          disabled={uploadingKey === `inti-${idx}`}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            e.currentTarget.value = '';
+                            void handleUploadIntiPhoto(idx, f);
+                          }}
+                          className="sr-only"
+                        />
+                      </label>
+                      {officer.photoUrl && (
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => void handleRemoveIntiPhoto(idx)}
+                        >
+                          Hapus foto
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setIntiDraft((prev) => prev.filter((_, i) => i !== idx))
+                        }
+                      >
+                        Hapus baris
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <Field
+                      label="Jabatan"
+                      placeholder="Contoh: Ketua Himpunan"
+                      value={officer.position}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setIntiDraft((prev) =>
+                          prev.map((item, i) => (i === idx ? { ...item, position: val } : item)),
+                        );
+                      }}
+                    />
+                    <Field
+                      label="Nama lengkap"
+                      placeholder="Nama pengurus"
+                      value={officer.nama}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setIntiDraft((prev) =>
+                          prev.map((item, i) => (i === idx ? { ...item, nama: val } : item)),
+                        );
+                      }}
+                    />
+                    <Field
+                      label="Program studi"
+                      placeholder="Contoh: S1 Teknik Informatika"
+                      value={officer.jurusan}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setIntiDraft((prev) =>
+                          prev.map((item, i) => (i === idx ? { ...item, jurusan: val } : item)),
+                        );
+                      }}
+                    />
                   </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <label className="inline-flex min-h-11 md:min-h-[38px] items-center gap-2 rounded-md border border-cream-300 bg-white px-3 py-1.5 type-small font-semibold text-ink-900 hover:bg-cream-100 cursor-pointer">
-                    <ImagePlus className="h-4 w-4 text-maroon-700" aria-hidden="true" />
-                    <span>
-                      {uploadingKey === `inti-${idx}`
-                        ? 'Mengunggah…'
-                        : officer.photoUrl
-                          ? 'Ganti foto'
-                          : 'Unggah foto'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      disabled={uploadingKey === `inti-${idx}`}
-                      onChange={(e) => {
-                        const f = e.target.files?.[0];
-                        e.currentTarget.value = '';
-                        void handleUploadIntiPhoto(idx, f);
-                      }}
-                      className="sr-only"
-                    />
-                  </label>
-                  {officer.photoUrl && (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => void handleRemoveIntiPhoto(idx)}
-                    >
-                      Hapus
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field
-                  label="Nama lengkap"
-                  value={officer.nama}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setIntiDraft((prev) =>
-                      prev.map((item, i) => (i === idx ? { ...item, nama: val } : item)),
-                    );
-                  }}
-                />
-                <Field
-                  label="Program studi"
-                  value={officer.jurusan}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setIntiDraft((prev) =>
-                      prev.map((item, i) => (i === idx ? { ...item, jurusan: val } : item)),
-                    );
-                  }}
-                />
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="sticky bottom-0 bg-white pt-4 border-t border-cream-200 flex justify-end">
-          <Button
-            variant="primary"
-            leftIcon={<Save className="h-4 w-4" />}
-            loading={savingInti}
-            loadingLabel="Menyimpan…"
-            onClick={handleSaveIntiAndHeads}
-          >
-            Simpan Pengurus Inti
-          </Button>
-        </div>
+            <div className="sticky bottom-0 bg-white pt-4 border-t border-cream-200 flex flex-wrap items-center justify-between gap-3">
+              <Button
+                variant="secondary"
+                leftIcon={<Plus className="h-4 w-4" />}
+                onClick={() =>
+                  setIntiDraft((prev) => [
+                    ...prev,
+                    { position: '', nama: '', jurusan: '' },
+                  ])
+                }
+              >
+                Tambah Pengurus Inti
+              </Button>
+              <Button
+                variant="primary"
+                leftIcon={<Save className="h-4 w-4" />}
+                loading={savingInti}
+                loadingLabel="Menyimpan…"
+                onClick={handleSaveIntiAndHeads}
+              >
+                Simpan Pengurus Inti
+              </Button>
+            </div>
+          </>
+        )}
       </section>
 
       {/* Units (Departments & Bureaus) */}
