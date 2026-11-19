@@ -15,9 +15,10 @@ function initAdminAuth() {
     if (!raw) {
       throw new Error('FIREBASE_SERVICE_ACCOUNT belum dikonfigurasi di server.');
     }
-    const jsonStr = raw.trim().startsWith('{')
-      ? raw.trim()
-      : Buffer.from(raw.trim(), 'base64').toString('utf8');
+    const trimmed = raw.trim();
+    const jsonStr = trimmed.startsWith('{')
+      ? trimmed
+      : Buffer.from(trimmed.replace(/\s+/g, ''), 'base64').toString('utf8');
     const serviceAccount = JSON.parse(jsonStr);
     initializeApp({
       credential: cert(serviceAccount),

@@ -188,6 +188,14 @@ export default function PeriodsBphPage() {
       .map((s) => Number(s.trim()))
       .filter((n) => Number.isInteger(n) && n >= 2010 && n <= 2100);
 
+    const DEFAULT_INTI_POSITIONS = [
+      'Ketua Himpunan',
+      'Wakil Ketua Himpunan',
+      'Sekretaris Jenderal',
+      'Sekretaris',
+      'Bendahara',
+    ];
+
     setCreatingPeriod(true);
     try {
       const res = await callCreatePeriodWizard({
@@ -196,10 +204,10 @@ export default function PeriodsBphPage() {
         copyFromPeriodId: copyFromPeriodId || undefined,
         archivePrevious,
         deactivateAngkatan,
-        inti: FALLBACK_CURRENT_PERIOD.inti.map((o) => ({
-          position: o.position,
-          nama: 'Belum ditetapkan',
-          jurusan: '—',
+        inti: DEFAULT_INTI_POSITIONS.map((position) => ({
+          position,
+          nama: '',
+          jurusan: '',
         })),
       });
       setNewPeriodOpen(false);
@@ -210,8 +218,8 @@ export default function PeriodsBphPage() {
       toast.success(
         `Periode ${newPeriodLabel} dibuat (${res.copiedUnits} unit disalin, ${res.deactivatedCount} akun lulus dinonaktifkan)`,
       );
-    } catch {
-      toast.error('Gagal membuat periode baru.');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Gagal membuat periode baru.');
     } finally {
       setCreatingPeriod(false);
     }

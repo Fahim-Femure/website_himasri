@@ -22,9 +22,10 @@ function initFirebaseAdmin() {
     if (!raw) {
       throw new Error('FIREBASE_SERVICE_ACCOUNT belum dikonfigurasi di server.');
     }
-    const jsonStr = raw.trim().startsWith('{')
-      ? raw.trim()
-      : Buffer.from(raw.trim(), 'base64').toString('utf8');
+    const trimmed = raw.trim();
+    const jsonStr = trimmed.startsWith('{')
+      ? trimmed
+      : Buffer.from(trimmed.replace(/\s+/g, ''), 'base64').toString('utf8');
     const serviceAccount = JSON.parse(jsonStr);
     initializeApp({
       credential: cert(serviceAccount),
@@ -567,9 +568,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const deactivateAngkatan = Array.isArray(data.deactivateAngkatan)
           ? (data.deactivateAngkatan as number[]).map(Number)
           : [];
-        const inti = Array.isArray(data.inti) ? data.inti : [];
+        const rawInti = Array.isArray(data.inti) ? data.inti : [];
+        const inti =
+          rawInti.length > 0
+            ? rawInti
+            : [
+                { position: 'Ketua Himpunan', nama: '', jurusan: '' },
+                { position: 'Wakil Ketua Himpunan', nama: '', jurusan: '' },
+                { position: 'Sekretaris Jenderal', nama: '', jurusan: '' },
+                { position: 'Sekretaris', nama: '', jurusan: '' },
+                { position: 'Bendahara', nama: '', jurusan: '' },
+              ];
 
-        if (label.length < 4 || !Number.isInteger(startYear) || inti.length === 0) {
+        if (label.length < 4 || !Number.isInteger(startYear)) {
           throw new RpcError(400, 'functions/invalid-argument', 'Input wizard periode baru tidak valid.');
         }
         const newPeriodId = `${startYear}-${startYear + 1}`;
