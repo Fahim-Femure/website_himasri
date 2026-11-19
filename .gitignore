@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+lib/
+web/dist/
+functions/lib/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+web/.env
+web/.env.*
+!web/.env.example
+*service-account*.json
+serviceAccountKey.json
+
+# Firebase & Emulator logs
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+pubsub-debug.log
+storage-debug.log
+emulator-data/
+
+# Testing & Coverage
+coverage/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/*
+!.vscode/extensions.json
