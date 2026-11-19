@@ -5,7 +5,7 @@ node_modules/
 
 # Build outputs
 dist/
-lib/
+/lib/
 web/dist/
 functions/lib/
 
